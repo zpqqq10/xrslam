@@ -151,6 +151,7 @@ class XRSLAM {
     void query_frame();
     bool global_localization_initialized();
     std::vector<std::string> get_logger_message();
+    void setURLport(const std::string url, const size_t port);
 
   private:
     std::unique_ptr<Detail> detail;

@@ -27,6 +27,9 @@ Firstly, switch XRPrimer to the branch of the specified OpenCV version `git chec
 - In XRSLAM, run `cmake -B build && cmake --build build -j8` to generate the project using cmake.
 - Start the XRSLAM pc palyer  with command  `./build/xrslam-pc/player/xrslam-pc-player -c configs/euroc.yaml --tum trajectory.tum euroc:///data/EuRoC/MH_01_easy/mav0`
 
+> GLFW Error: NSGL: Failed to find a suitable pixel format
+> 虚拟机的问题，不能跑
+
 #### iOS
 
 - In XRPrimer, run `./build-ios.sh` to configure some common dependencies.

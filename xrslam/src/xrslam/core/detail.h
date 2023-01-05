@@ -50,6 +50,7 @@ struct XRSLAM::Detail {
     void disable_global_localization();
     void query_frame();
     bool global_localization_initialized();
+    void setURLport(const std::string url, const size_t port);
 
   private:
     void track_imu(const ImuData &imu);

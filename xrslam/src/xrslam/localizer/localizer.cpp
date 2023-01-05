@@ -1,5 +1,6 @@
 #include <xrslam/localizer/localizer.h>
 #include <xrslam/utility/logger.h>
+#import "xrslam/localizer/util.h"
 
 namespace xrslam {
 
@@ -53,30 +54,38 @@ void Localizer::test_connection() {
 void Localizer::query_loc(const cv::Mat cvimg, const Pose &T_slam_body,
                           ScreenState screenState) {
     try {
+        std::unique_ptr<UTIL> util = std::make_unique<UTIL>();
         httplib::Client cli(url, port);
         cli.set_timeout_sec(1e7);
         cli.set_read_timeout(1e7, 0);
 
-        cv::Mat img_rgb;
-        if (cvimg.channels() == 1) {
-            cv::cvtColor(cvimg, img_rgb, cv::COLOR_GRAY2RGB);
-        } else {
-            img_rgb = cvimg.clone();
-        }
+         cv::Mat img_rgb;
+         if (cvimg.channels() == 1) {
+             cv::cvtColor(cvimg, img_rgb, cv::COLOR_GRAY2RGB);
+         } else {
+             img_rgb = cvimg.clone();
+         }
 
         std::vector<float> params =
             rotate_intrinsic(screenState, img_rgb.cols, img_rgb.rows);
         cv::Mat resImg = get_image_by_screenstate(screenState, img_rgb);
+        // convert cv::Mat to UIImage and save
+        util->saveImage(MatToUIImage(img_rgb));
 
         std::string message = encode_image_msg(resImg);
         params.insert(params.end(), distortion.begin(), distortion.end());
 
         nlohmann::json j_msg;
-        j_msg["image"] = message;
+        // j_msg["image"] = message;
         j_msg["intrinsic"] = {{"model", "OPENCV"},
                               {"width", int(resImg.cols)},
                               {"height", int(resImg.rows)},
                               {"params", params}};
+        std::vector<float> ppp = {(float)T_slam_body.p.x(), (float)T_slam_body.p.y(),
+                                  (float)T_slam_body.p.z()};
+        std::vector<float> qqq = {(float)T_slam_body.q.x(), (float)T_slam_body.q.y(), 
+                                  (float)T_slam_body.q.z(), (float)T_slam_body.q.w()};
+        j_msg["pose"] = {{"p", ppp}, {"q", qqq}};
 
         auto res = cli.Post("/loc", j_msg.dump(), "application/json");
         if (!res) {
@@ -314,6 +323,11 @@ std::vector<float> Localizer::rotate_intrinsic(const ScreenState screenState,
         break;
     }
     return {fx, fy, cx, cy};
+}
+
+void Localizer::setURLport(const std::string u, const size_t p){
+    url = u; 
+    port = p;
 }
 
 } // namespace xrslam

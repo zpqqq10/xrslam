@@ -129,4 +129,8 @@ std::vector<std::string> XRSLAM::get_logger_message() {
     return Logger::instance().getAllMessage();
 }
 
+void XRSLAM::setURLport(const std::string url, const size_t port){
+    detail->setURLport(url, port);
+}
+
 } // namespace xrslam

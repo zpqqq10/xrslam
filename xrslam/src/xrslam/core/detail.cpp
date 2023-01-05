@@ -228,4 +228,8 @@ std::tuple<double, Pose> XRSLAM::Detail::get_latest_state() const {
     return {timestamp, output_pose};
 }
 
+void XRSLAM::Detail::setURLport(const std::string url, const size_t port){
+    frontend->setURLport(url, port);
+}
+
 } // namespace xrslam

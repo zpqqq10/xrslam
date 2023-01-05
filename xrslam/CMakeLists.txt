@@ -60,6 +60,7 @@ set(PRIVATE_HEADERS
   ${XRSLAM_SOURCE_DIR}/xrslam/localizer/base64.h
   ${XRSLAM_SOURCE_DIR}/xrslam/localizer/base64_convert.h
   ${XRSLAM_SOURCE_DIR}/xrslam/localizer/localizer.h
+  # ${XRSLAM_SOURCE_DIR}/xrslam/localizer/util.h
   ${XRSLAM_SOURCE_DIR}/xrslam/localizer/httplib.h
   ${XRSLAM_SOURCE_DIR}/xrslam/localizer/json.h
 )
@@ -85,6 +86,7 @@ set(PRIVATE_SOURCES
   ${XRSLAM_SOURCE_DIR}/xrslam/utility/debug.cpp
   ${XRSLAM_SOURCE_DIR}/xrslam/utility/worker.cpp
   ${XRSLAM_SOURCE_DIR}/xrslam/localizer/localizer.cpp
+  # ${XRSLAM_SOURCE_DIR}/xrslam/localizer/util.cpp
   ${XRSLAM_SOURCE_DIR}/xrslam/ar/virtual_object_manager.cpp
 )
 

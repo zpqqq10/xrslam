@@ -31,6 +31,7 @@ class FrontendWorker : public Worker {
     bool global_localization_state() const;
     void set_global_localization_state(bool state);
     void query_frame();
+    void setURLport(const std::string url, const size_t port);
 
     std::unique_ptr<Localizer> localizer;
 

@@ -197,6 +197,8 @@ struct OutputState {
 
 - (void)query_frame {
     xrslam->query_frame();
+    // UIImage *re = [self UIImageFromCVMat:cvimage];
+    // [self saveImage:re];
 }
 
 - (NSMutableArray *)get_logger_message {
@@ -208,6 +210,67 @@ struct OutputState {
         [nsstrings addObject:nsstr];
     }
     return nsstrings;
+}
+
+- (UIImage *)UIImageFromCVMat:(cv::Mat &)cvMat{
+    CGColorSpaceRef colorSpace;
+    CGBitmapInfo bitmapInfo;
+    size_t elemsize = cvMat.elemSize();
+    if (elemsize == 1) {
+        colorSpace = CGColorSpaceCreateDeviceGray();
+        bitmapInfo = kCGImageAlphaNone | kCGBitmapByteOrderDefault;
+    }
+    else {
+        colorSpace = CGColorSpaceCreateDeviceRGB();
+        bitmapInfo = kCGBitmapByteOrder32Host;
+        bitmapInfo |= (elemsize == 4) ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNone;
+    }
+    
+    NSData *data = [NSData dataWithBytes:cvMat.data length:elemsize * cvMat.total()];
+    CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
+    // Creating CGImage from cv::Mat
+    CGImageRef imageRef = CGImageCreate(cvMat.cols,                 // width
+                                        cvMat.rows,                 // height
+                                        8,                          // bits per component
+                                        8 * cvMat.elemSize(),       // bits per pixel
+                                        cvMat.step[0],              // bytesPerRow
+                                        colorSpace,                 // colorspace
+                                        bitmapInfo,                 // bitmap info
+                                        provider,                   // CGDataProviderRef
+                                        NULL,                       // decode
+                                        false,                      // should interpolate
+                                        kCGRenderingIntentDefault   // intent
+                                        );
+    UIImage *finalImage = [UIImage imageWithCGImage:imageRef];
+    
+    CGImageRelease(imageRef);
+    CGDataProviderRelease(provider);
+    CGColorSpaceRelease(colorSpace);
+    
+    return finalImage;
+}
+
+- (void)saveImage:(UIImage *)image {
+    int ran = arc4random_uniform(200);
+    //获取 Document 目录路径
+    NSArray *paths =NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES);
+        
+    // 构造保存文件的名称 保存成功会返回YES
+    NSString *filePath = [[paths objectAtIndex:0]stringByAppendingPathComponent:
+                            [NSString stringWithFormat:@"%d.png", ran]]; 
+    //保存操作
+    // BOOL result =[UIImagePNGRepresentation(image)writeToFile:filePath   atomically:YES]; 
+    UIImageWriteToSavedPhotosAlbum(image, self, nil, nil);
+    // if (result == YES) {
+    //     NSLog(@"保存成功+%s", filePath);
+    // }else{
+    NSLog(@"save image");
+    // }
+        
+}
+
+- (void)setURLport:(NSString *)url port:(int)port{
+    xrslam->setURLport([url UTF8String], port);
 }
 
 - (void)updateImage:(double)t image:(UIImage *)image {

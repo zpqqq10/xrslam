@@ -138,4 +138,8 @@ void FrontendWorker::set_global_localization_state(bool state) {
     global_localization_flag = state;
 }
 
+void FrontendWorker::setURLport(const std::string url, const size_t port){
+    localizer->setURLport(url, port);
+}
+
 } // namespace xrslam

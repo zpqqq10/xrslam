@@ -32,6 +32,7 @@ class Localizer {
                                      const cv::Mat &img);
     std::vector<float> rotate_intrinsic(const ScreenState screenState, size_t w,
                                         size_t h);
+    void setURLport(const std::string u, const size_t p);
 
   private:
     std::string url;

@@ -126,4 +126,8 @@ class XRSLAMer : CameraDelegate, MotionDelegate {
     func get_logger_message() -> NSMutableArray {
         return xrslam.get_logger_message()
     }
+
+    func setURLport(url: String, port: Int32){
+        xrslam.setURLport(url, port: port)
+    }
 }

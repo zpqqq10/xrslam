@@ -35,8 +35,10 @@ typedef NS_ENUM(NSUInteger, SysState) {
 - (NSMutableArray *)get_logger_message;
 - (UIImage *)getLatestImage;
 - (UIImage *)getCurrentImage;
+// - (UIImage *)UIImageFromCVMat:(cv::Mat &)cvMat;
+- (void)saveImage:(UIImage *)image;
 - (void)updateImage:(double)t image:(UIImage *)image;
-
+- (void)setURLport:(NSString *)url port:(int)port;
 @end
 
 NS_ASSUME_NONNULL_END

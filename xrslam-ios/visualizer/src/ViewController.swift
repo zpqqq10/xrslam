@@ -260,12 +260,14 @@ class ViewController: UIViewController, SCNSceneRendererDelegate {
             return
         }
 
+        //* initialization
         self.xrslamer = XRSLAMer()
         self.camera = camera
         self.motion = motion
         self.motion?.delegate = xrslamer
         self.camera?.delegate = xrslamer
 
+        //* two modes
         if system_mode == 0{
             self.xrslamer?.DisableLoc()
         }else{
@@ -295,6 +297,7 @@ class ViewController: UIViewController, SCNSceneRendererDelegate {
             myPrint(type: "I", context: "Already Start!")
         }else {
             print("Start!");
+            NetworkInput()
             self.xrslamer = nil
             startCamera()
             self.xrslamer?.Begin()
@@ -357,5 +360,29 @@ class ViewController: UIViewController, SCNSceneRendererDelegate {
             myPrint(type: "I", context: "SLAM Mode Do not support visual localization!")
         }
     }
+
+    func NetworkInput() {
+        let alertController = UIAlertController(title: "setting", message: "Enter URL & port", preferredStyle: .alert)
+        alertController.addTextField {
+            (textField: UITextField!) -> Void in
+            textField.placeholder = "URL"
+        }
+        alertController.addTextField {
+            (textField: UITextField!) -> Void in
+            textField.placeholder = "port"
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: {
+            action in
+            //也可以用下标的形式获取textField let login = alertController.textFields![0]
+            let url = alertController.textFields![0]
+            let port = alertController.textFields![1]
+            self.xrslamer?.setURLport(url:url.text!, port:Int32(port.text!)!)
+        })
+        alertController.addAction(cancelAction)
+        alertController.addAction(okAction)
+        self.present(alertController, animated: true, completion: nil)
+    }
+
 
 }
