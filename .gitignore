@@ -3,6 +3,7 @@ build-ios.conf
 .DS_Store
 .vscode/**
 build/**
+!build/iOS
 debug/**
 _build/**
 
