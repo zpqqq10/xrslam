@@ -17,6 +17,14 @@ class OpenCvImage : public Image {
 
     size_t height() const override { return image.rows; }
 
+    // * for original
+    // uchar *get_origindata() const override { return origin.data; }
+
+    // size_t origin_width() const override { return origin.cols; }
+
+    // size_t origin_height() const override { return origin.rows; }
+    // * for original end
+
     size_t level_num() const override { return 3; }
 
     double evaluate(const vector<2> &u, int level = 0) const override;
@@ -36,8 +44,6 @@ class OpenCvImage : public Image {
                             const vector<4> &coeffs);
     void release_image_buffer() override;
 
-    cv::Mat image;
-    cv::Mat raw;
 
   private:
     std::vector<cv::Mat> image_pyramid;

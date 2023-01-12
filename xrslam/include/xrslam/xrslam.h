@@ -105,10 +105,19 @@ class Config {
 class Image {
   public:
     double t;
+    cv::Mat image;
+    cv::Mat raw;
+    // cv::Mat orgn;
 
     virtual uchar *get_rawdata() const = 0;
     virtual size_t width() const = 0;
     virtual size_t height() const = 0;
+    // * for origin
+    // ? why runtime error?
+    // virtual uchar *get_origindata() const = 0;
+    // virtual size_t origin_width() const = 0;
+    // virtual size_t origin_height() const = 0;
+    // * for origin end
 
     virtual size_t level_num() const { return 0; }
 

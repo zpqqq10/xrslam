@@ -91,3 +91,7 @@ void UTIL::saveImage(UIImage *image) {
     UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
     NSLog(@"save image");
 }
+
+void printInte(int n) {
+    NSLog(@"number %d", n);
+}

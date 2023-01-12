@@ -26,7 +26,8 @@ class Camera : NSObject {
     }
 
     // init?(position: AVCaptureDevice.Position = .back, preset: AVCaptureSession.Preset = .vga640x480, queue: DispatchQueue? = nil) {
-    init?(position: AVCaptureDevice.Position = .back, preset: AVCaptureSession.Preset = .hd1280x720, queue: DispatchQueue? = nil) {
+    // init?(position: AVCaptureDevice.Position = .back, preset: AVCaptureSession.Preset = .hd1280x720, queue: DispatchQueue? = nil) {
+    init?(position: AVCaptureDevice.Position = .back, preset: AVCaptureSession.Preset = .inputPriority, queue: DispatchQueue? = nil) {
         guard let device = Camera.avCaptureDevice(position: position) else {
             return nil
         }
@@ -52,6 +53,27 @@ class Camera : NSObject {
 
         self.session.beginConfiguration()
         self.session.sessionPreset = preset
+
+        // resolution
+        let availableFormats : [AVCaptureDevice.Format] = device.formats
+        // for format : AVCaptureDevice.Format in availableFormats {
+        //     print("format: " + format.description)
+        // }
+        for format : AVCaptureDevice.Format in availableFormats { 
+            let desc = format.formatDescription 
+            let dimensions = CMVideoFormatDescriptionGetDimensions(desc) 
+            // 4:3 : 1440x1080 1920x1440 2592x1944 4032x3024
+            if dimensions.width == 1920 && dimensions.height == 1440 { 
+                do { 
+                     try device.lockForConfiguration()
+                     device.activeFormat = format
+                     device.unlockForConfiguration() 
+                     break
+                } catch { 
+                    print("error") 
+                } 
+            } 
+        }
         self.session.commitConfiguration()
 
         self.session.startRunning()

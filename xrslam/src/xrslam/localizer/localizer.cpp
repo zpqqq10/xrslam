@@ -1,6 +1,12 @@
 #include <xrslam/localizer/localizer.h>
 #include <xrslam/utility/logger.h>
-#import "xrslam/localizer/util.h"
+// #import "xrslam/localizer/util.h"
+#import <opencv2/imgcodecs/ios.h>
+#import <Foundation/Foundation.h>
+#import <SceneKit/SceneKit.h>
+#import <UIKit/UIKit.h>
+#import <AVFoundation/AVFoundation.h>
+
 
 namespace xrslam {
 
@@ -51,31 +57,31 @@ void Localizer::test_connection() {
     }
 }
 
-void Localizer::query_loc(const cv::Mat cvimg, const Pose &T_slam_body,
+void Localizer::query_loc(const cv::Mat cvimg, const cv::Mat origin, const Pose &T_slam_body,
                           ScreenState screenState) {
     try {
-        std::unique_ptr<UTIL> util = std::make_unique<UTIL>();
         httplib::Client cli(url, port);
         cli.set_timeout_sec(1e7);
         cli.set_read_timeout(1e7, 0);
 
-         cv::Mat img_rgb;
-         if (cvimg.channels() == 1) {
-             cv::cvtColor(cvimg, img_rgb, cv::COLOR_GRAY2RGB);
-         } else {
-             img_rgb = cvimg.clone();
-         }
+        cv::Mat img_rgb;
+        if (cvimg.channels() == 1) {
+            cv::cvtColor(cvimg, img_rgb, cv::COLOR_GRAY2RGB);
+        } else {
+            img_rgb = cvimg.clone();
+        }
+         
 
         std::vector<float> params =
             rotate_intrinsic(screenState, img_rgb.cols, img_rgb.rows);
-        cv::Mat resImg = get_image_by_screenstate(screenState, img_rgb);
         // put the image right before saving
-        cv::transpose(img_rgb, img_rgb);
-        cv::flip(img_rgb, img_rgb, 1);
+        cv::Mat resImg = get_image_by_screenstate(screenState, img_rgb);
+        cv::Mat img_origin = get_image_by_screenstate(screenState, origin);
         // convert cv::Mat to UIImage and save
-        util->saveImage(MatToUIImage(img_rgb));
+        UIImageWriteToSavedPhotosAlbum(MatToUIImage(resImg), nil, nil, nil);
+        UIImageWriteToSavedPhotosAlbum(MatToUIImage(img_origin), nil, nil, nil);
 
-        std::string message = encode_image_msg(resImg);
+        // std::string message = encode_image_msg(resImg);
         params.insert(params.end(), distortion.begin(), distortion.end());
 
         nlohmann::json j_msg;
@@ -239,10 +245,16 @@ void Localizer::query_localization(std::shared_ptr<xrslam::Image> img,
         Eigen::Matrix3d r(qcw);
         ScreenState screenState = get_screenstate(r);
 
-        const cv::Mat cvimg(img->height(), img->width(), CV_8UC1,
-                            img->get_rawdata());
+        cv::Mat cvimg; // image gray
+        const cv::Mat origin_img(img->raw.rows, img->raw.cols, CV_8UC3,
+                            img->raw.data); // raw rgb
+        cv::cvtColor(origin_img, cvimg, cv::COLOR_BGRA2GRAY);
+        if(origin_img.cols > 640) {
+            cv::Size dsize = cv::Size(640, 480);
+            cv::resize(cvimg, cvimg, dsize, 0, 0, cv::INTER_AREA);
+        }
 
-        std::thread th = std::thread(&Localizer::query_loc, this, cvimg.clone(),
+        std::thread th = std::thread(&Localizer::query_loc, this, cvimg.clone(), origin_img.clone(),
                                      pose, screenState);
         th.detach();
 

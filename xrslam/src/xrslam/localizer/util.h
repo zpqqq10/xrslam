@@ -11,4 +11,5 @@ public:
 cv::Mat cvMatFromUIImage(UIImage *image);
 UIImage *UIImageFromCVMat(cv::Mat &cvMat);
 void saveImage(UIImage *image);
+void printInte(int n);
 };

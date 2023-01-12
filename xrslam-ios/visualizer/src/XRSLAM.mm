@@ -32,6 +32,7 @@ struct OutputState {
     std::vector<double> track_time;
     UIImage *uiimage; // rgb
     cv::Mat cvimage; // gray
+    cv::Mat original; // high resolution
 }
 
 - (id)init:(NSString *)model {
@@ -87,9 +88,10 @@ struct OutputState {
         (unsigned char *)CVPixelBufferGetBaseAddress(pixelBuffer);
 
     cv::Mat raw_image = cv::Mat(h, w, CV_8UC4, baseAddress, pixelPerRow);
-    // if(w == 1280){
+    // set original matrix
+    cv::cvtColor(raw_image, original, cv::COLOR_BGRA2RGB);
     if(w > 640){
-        // raw_image = raw_image(cv::Range(120,600), cv::Range(320,960));
+        // resize
         cv::Size dsize = cv::Size(640, 480);
         cv::resize(raw_image, raw_image, dsize, 0, 0, cv::INTER_AREA);
     }
@@ -99,10 +101,6 @@ struct OutputState {
     cv::Mat rgb_image;
     cv::cvtColor(raw_image, cvimage, cv::COLOR_BGRA2GRAY);
     cv::cvtColor(raw_image, rgb_image, cv::COLOR_BGRA2RGB);
-
-    // if(w == 1280){
-    //     cvimage = cvimage(cv::Range(120,600), cv::Range(320,960));
-    // }
 
     uiimage = MatToUIImage(rgb_image);
 }
@@ -115,7 +113,8 @@ struct OutputState {
         std::make_shared<xrslam::extra::OpenCvImage>();
     opencv_image->t = t;
     opencv_image->image = cvimage.clone();
-    opencv_image->raw = cvimage.clone();    // only used once in opencv_image.h
+    opencv_image->raw = original.clone();  
+    // opencv_image->orgn = original.clone(); 
 
     xrslam->track_camera(opencv_image);
     auto [timestamp, pose_state] = xrslam->get_latest_camera_state();

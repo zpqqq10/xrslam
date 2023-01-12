@@ -16,7 +16,7 @@ class Localizer {
     ~Localizer();
 
     void test_connection();
-    void query_loc(const cv::Mat cvimg, const Pose &T_slam_body,
+    void query_loc(const cv::Mat cvimg, const cv::Mat origin, const Pose &T_slam_body,
                    ScreenState screenState);
     void add_pose_message(const double timestamp, const Pose &pose);
     void send_pose();
