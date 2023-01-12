@@ -297,7 +297,9 @@ class ViewController: UIViewController, SCNSceneRendererDelegate {
             myPrint(type: "I", context: "Already Start!")
         }else {
             print("Start!");
-            NetworkInput()
+            if(system_mode == 1) {
+                NetworkInput()
+            }
             self.xrslamer = nil
             startCamera()
             self.xrslamer?.Begin()

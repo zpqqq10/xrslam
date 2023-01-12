@@ -69,6 +69,9 @@ void Localizer::query_loc(const cv::Mat cvimg, const Pose &T_slam_body,
         std::vector<float> params =
             rotate_intrinsic(screenState, img_rgb.cols, img_rgb.rows);
         cv::Mat resImg = get_image_by_screenstate(screenState, img_rgb);
+        // put the image right before saving
+        cv::transpose(img_rgb, img_rgb);
+        cv::flip(img_rgb, img_rgb, 1);
         // convert cv::Mat to UIImage and save
         util->saveImage(MatToUIImage(img_rgb));
 
@@ -85,7 +88,7 @@ void Localizer::query_loc(const cv::Mat cvimg, const Pose &T_slam_body,
                                   (float)T_slam_body.p.z()};
         std::vector<float> qqq = {(float)T_slam_body.q.x(), (float)T_slam_body.q.y(), 
                                   (float)T_slam_body.q.z(), (float)T_slam_body.q.w()};
-        j_msg["pose"] = {{"p", ppp}, {"q", qqq}};
+        j_msg["pose"] = {{"position", ppp}, {"quaternion", qqq}};
 
         auto res = cli.Post("/loc", j_msg.dump(), "application/json");
         if (!res) {
