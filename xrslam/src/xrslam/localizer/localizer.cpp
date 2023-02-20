@@ -63,6 +63,8 @@ void Localizer::query_loc(const cv::Mat cvimg, const cv::Mat origin, const Pose 
         httplib::Client cli(url, port);
         cli.set_timeout_sec(1e7);
         cli.set_read_timeout(1e7, 0);
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        [formatter setDateFormat:@"MM-dd HH-mm-ss"];
 
         cv::Mat img_rgb;
         if (cvimg.channels() == 1) {
@@ -80,6 +82,7 @@ void Localizer::query_loc(const cv::Mat cvimg, const cv::Mat origin, const Pose 
         // convert cv::Mat to UIImage and save
         UIImageWriteToSavedPhotosAlbum(MatToUIImage(resImg), nil, nil, nil);
         UIImageWriteToSavedPhotosAlbum(MatToUIImage(img_origin), nil, nil, nil);
+        NSString *dateTime = [formatter stringFromDate:[NSDate date]];
 
         // std::string message = encode_image_msg(resImg);
         params.insert(params.end(), distortion.begin(), distortion.end());
@@ -95,6 +98,7 @@ void Localizer::query_loc(const cv::Mat cvimg, const cv::Mat origin, const Pose 
         std::vector<float> qqq = {(float)T_slam_body.q.x(), (float)T_slam_body.q.y(), 
                                   (float)T_slam_body.q.z(), (float)T_slam_body.q.w()};
         j_msg["pose"] = {{"position", ppp}, {"quaternion", qqq}};
+        j_msg["dateTime"] = {std::string([dateTime UTF8String])};
 
         auto res = cli.Post("/loc", j_msg.dump(), "application/json");
         if (!res) {
